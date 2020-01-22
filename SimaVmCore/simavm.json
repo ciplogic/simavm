@@ -1,0 +1,7 @@
+{
+  "startDir": "/home/ciprian/oss/simalang/examples",
+  "startClass": "Program1",
+  "rtlPrefixes": [
+    "java.lang"
+  ]
+}
