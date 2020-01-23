@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 namespace SimaVmCore.Vm
 {
@@ -15,11 +14,12 @@ namespace SimaVmCore.Vm
 
         private int RowStartsWith(string text)
         {
-            for(var i = 0;i<_rows.Length; i++)
+            for (var i = 0; i < _rows.Length; i++)
                 if (_rows[i].StartsWith(text))
                     return i;
             return -1;
         }
+
         public ClassDefinition ParseDefinition()
         {
             var cd = new ClassDefinition
@@ -39,35 +39,29 @@ namespace SimaVmCore.Vm
             ExtractFields(cd, startMethodBlock, endMethodBlock);
         }
 
-        int CountStartSpaces(string text)
+        private int CountStartSpaces(string text)
         {
             for (var i = 0; i < text.Length; i++)
-            {
                 if (text[i] != ' ')
                     return i;
-            }
 
             return 0;
         }
 
-        private void ExtractFields(ClassDefinition classDefinition, int startMethodBlock,  int endMethodBlock)
+        private void ExtractFields(ClassDefinition classDefinition, int startMethodBlock, int endMethodBlock)
         {
             var rowsWithFields = new List<string>();
             var rowsWithMethodsOrCtors = new List<string>();
-            for (var i = startMethodBlock+1; i <= endMethodBlock; i++)
+            for (var i = startMethodBlock + 1; i <= endMethodBlock; i++)
             {
                 var row = _rows[i];
                 if (CountStartSpaces(row) == 2)
                 {
                     row = row.Substring(2);
                     if (!row.Contains('('))
-                    {
                         rowsWithFields.Add(row);
-                    }
                     else
-                    {
                         rowsWithMethodsOrCtors.Add(row);
-                    }
                 }
             }
 
@@ -97,7 +91,7 @@ namespace SimaVmCore.Vm
             }
         }
 
-        TypeDef[] ResolvedArguments(string args)
+        private TypeDef[] ResolvedArguments(string args)
         {
             var argsSplit = args.Split(',', StringSplitOptions.RemoveEmptyEntries);
             var resultList = new List<TypeDef>();
@@ -110,7 +104,8 @@ namespace SimaVmCore.Vm
             return resultList.ToArray();
         }
 
-        private MethodDefinition BuildMethod(ClassDefinition classDefinition, Modifier[] declarationModifiers, string beforeParen, string args)
+        private MethodDefinition BuildMethod(ClassDefinition classDefinition, Modifier[] declarationModifiers,
+            string beforeParen, string args)
         {
             var split = beforeParen.Split(' ');
             var methodName = split[1];
@@ -123,7 +118,8 @@ namespace SimaVmCore.Vm
             return result;
         }
 
-        private ConstructorDefinition BuildConstructor(ClassDefinition classDefinition, Modifier[] declarationModifiers, string args)
+        private ConstructorDefinition BuildConstructor(ClassDefinition classDefinition, Modifier[] declarationModifiers,
+            string args)
         {
             var result = new ConstructorDefinition(classDefinition, classDefinition.Name)
             {
@@ -138,7 +134,7 @@ namespace SimaVmCore.Vm
             {
                 var declaration = ExtractModifiers(rowWithField);
                 var split = declaration.remainder.Split(' ');
-                
+
                 var name = split[1];
                 name = name.Substring(0, name.Length - 1);
 
@@ -167,9 +163,10 @@ namespace SimaVmCore.Vm
         public static (Modifier[] modifiers, string remainder) ExtractModifiers(string declaration)
         {
             var resultModifiers = new List<Modifier>();
-            var modifiers = new Dictionary<string, Modifier>()
+            var modifiers = new Dictionary<string, Modifier>
             {
-                {"public", Modifier.Public
+                {
+                    "public", Modifier.Public
                 },
                 {"private", Modifier.Private},
                 {"static", Modifier.Static},

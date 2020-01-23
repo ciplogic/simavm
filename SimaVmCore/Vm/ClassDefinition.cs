@@ -5,8 +5,8 @@ namespace SimaVmCore.Vm
     public class MemberDefinition
     {
         public Modifier[] Modifiers = new Modifier[0];
-        public ClassDefinition ParentClass;
         public string Name;
+        public ClassDefinition ParentClass;
 
         public MemberDefinition(ClassDefinition parentClass, string name)
         {
@@ -32,11 +32,10 @@ namespace SimaVmCore.Vm
 
     public class ClassDefinition
     {
-        public string Name;
         public string BaseClass;
         public List<string> Interfaces;
+        public string Name;
         public List<ClassPoolEntry> ClassPool { get; set; } = new List<ClassPoolEntry>();
         public List<MemberDefinition> Members { get; } = new List<MemberDefinition>();
-        
     }
 }

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace SimaVmCore
 {
-    static class Utilities
+    internal static class Utilities
     {
         public static (int exitCode, string code) Execute(string fileName, string arguments)
         {
@@ -34,7 +34,7 @@ namespace SimaVmCore
             }
         }
 
-        public static T DeserializeFile<T>(this string fileName) 
+        public static T DeserializeFile<T>(this string fileName)
             where T : new()
         {
             try
@@ -47,6 +47,5 @@ namespace SimaVmCore
                 return new T();
             }
         }
-
     }
 }

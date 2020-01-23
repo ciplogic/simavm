@@ -2,9 +2,9 @@ namespace SimaVmCore.Vm
 {
     public class TypeDef
     {
-        public string Name;
-        public bool IsArray;
         public TypeDef ElementType;
+        public bool IsArray;
         public bool IsPrimtive;
+        public string Name;
     }
 }

@@ -7,19 +7,8 @@ namespace SimaVmCore.Vm
 {
     public class TypeResolver
     {
-        public static  TypeResolver Instance { get; } = new TypeResolver();
-        public int Count => Classes.Count();
+        private readonly Dictionary<string, TypeDef> Defs = new Dictionary<string, TypeDef>();
 
-        public IEnumerable<TypeDef> Classes => Defs.Values.Where(isClass);
-
-        private bool isClass(TypeDef it)
-        {
-            if (it.IsArray || it.IsPrimtive)
-                return false;
-            return true;
-        }
-
-        Dictionary<string, TypeDef> Defs = new Dictionary<string, TypeDef>();
         private TypeResolver()
         {
             AddPrimitive("void");
@@ -31,25 +20,37 @@ namespace SimaVmCore.Vm
             AddPrimitive("double");
         }
 
-        void AddPrimitive(string typeName)
+        public static TypeResolver Instance { get; } = new TypeResolver();
+        public int Count => Classes.Count();
+
+        public IEnumerable<TypeDef> Classes => Defs.Values.Where(isClass);
+
+        private bool isClass(TypeDef it)
         {
-            var primitive = new TypeDef() {Name = typeName, ElementType = null, IsArray = false, IsPrimtive = true};
+            if (it.IsArray || it.IsPrimtive)
+                return false;
+            return true;
+        }
+
+        private void AddPrimitive(string typeName)
+        {
+            var primitive = new TypeDef {Name = typeName, ElementType = null, IsArray = false, IsPrimtive = true};
             Defs[typeName] = primitive;
         }
 
-        static bool IsArray(string typeName)
+        private static bool IsArray(string typeName)
         {
             return typeName.EndsWith("[]");
         }
 
-        public  TypeDef Resolve(string typeName)
+        public TypeDef Resolve(string typeName)
         {
             var defs = Defs;
             if (defs.TryGetValue(typeName, out var result))
                 return result;
             if (IsArray(typeName))
                 return Instance.Resolved(typeName, ResolveArray(typeName));
-            var typeDef= new TypeDef()
+            var typeDef = new TypeDef
             {
                 Name = typeName
             };
@@ -60,7 +61,7 @@ namespace SimaVmCore.Vm
         {
             var typeNameElement = typeName.Substring(0, typeName.Length - 2);
             var resolvedElement = Resolve(typeNameElement);
-            var fullType = new TypeDef()
+            var fullType = new TypeDef
             {
                 ElementType = resolvedElement,
                 IsArray = true,
@@ -79,10 +80,7 @@ namespace SimaVmCore.Vm
 
         public int Summary()
         {
-            foreach (var def in Defs)
-            {
-                Console.WriteLine(def.Key);
-            }
+            foreach (var def in Defs) Console.WriteLine(def.Key);
 
             return Defs.Count;
         }

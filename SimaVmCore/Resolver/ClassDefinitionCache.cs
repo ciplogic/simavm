@@ -5,13 +5,11 @@ namespace SimaVmCore.Resolver
 {
     public class ClassDefinitionCache
     {
-        Dictionary<string, ClassDefinition>_definitions = new Dictionary<string, ClassDefinition>();
+        private readonly Dictionary<string, ClassDefinition> _definitions = new Dictionary<string, ClassDefinition>();
+
         public ClassDefinition GetClass(string javaLangString)
         {
-            if (_definitions.TryGetValue(javaLangString,  out var result))
-            {
-                return result;
-            }
+            if (_definitions.TryGetValue(javaLangString, out var result)) return result;
             var outProcLines = ClassResolver.ResolveClass(javaLangString);
             var parser = new ClassDefinitionParser(outProcLines);
             var def = parser.ParseDefinition();
