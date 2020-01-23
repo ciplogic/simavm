@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using SimaVmCore.Resolver;
 using SimaVmCore.Vm;
 
 namespace SimaVmCore
@@ -12,10 +13,16 @@ namespace SimaVmCore
         {
             var config = "simavm.json".DeserializeFile<SimaVmConfig>();
             Directory.SetCurrentDirectory(config.startDir);
-            var outProc = Utilities.Execute("javap", "-p -c -v " + config.startClass);
-            var outProcLines = outProc.code.Split('\n');
+            
+            if (!Directory.Exists(ConstStrings.CachedDir))
+            {
+                Directory.CreateDirectory(ConstStrings.CachedDir);
+            }
+            
+            var resolver = new ClassResolver(config);
+            var outProcLines = resolver.ResolveClass(config.startClass);
             var parser = new ClassDefinitionParser(outProcLines);
-            var def = parser.parseDefinition();
+            var def = parser.ParseDefinition();
             Console.WriteLine("Output:\n "+string.Join("\n", outProcLines));
         }
     }

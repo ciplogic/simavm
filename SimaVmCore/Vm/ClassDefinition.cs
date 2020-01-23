@@ -2,44 +2,41 @@ using System.Collections.Generic;
 
 namespace SimaVmCore.Vm
 {
+    public class MemberDefinition
+    {
+        public Modifier[] Modifiers = new Modifier[0];
+        public ClassDefinition ParentClass;
+        public string Name;
+
+        public MemberDefinition(ClassDefinition parentClass, string name)
+        {
+            ParentClass = parentClass;
+            Name = name;
+        }
+    }
+
+    public class ModifiersDef
+    {
+        public bool IsStatic;
+        public List<Modifier> Modifiers = new List<Modifier>();
+    }
+
+    public enum Modifier
+    {
+        Static,
+        Public,
+        Private,
+        Protected,
+        Package
+    }
+
     public class ClassDefinition
     {
         public string Name;
         public string BaseClass;
         public List<string> Interfaces;
         public List<ClassPoolEntry> ClassPool { get; set; } = new List<ClassPoolEntry>();
+        public List<MemberDefinition> Members { get; } = new List<MemberDefinition>();
         
-    }
-
-    public class ClassDefinitionParser
-    {
-        private readonly string[] _rows;
-
-        public ClassDefinitionParser(string[] rows)
-        {
-            _rows = rows;
-        }
-
-        int RowStartsWith(string text)
-        {
-            for(var i = 0;i<_rows.Length; i++)
-                if (_rows[i].StartsWith(text))
-                    return i;
-            return -1;
-        }
-        public ClassDefinition parseDefinition()
-        {
-            var cd = new ClassDefinition();
-            string className = GetClassName();
-            cd.Name = className;
-
-            return cd;
-        }
-
-        private string GetClassName()
-        {
-            var classIndexRow = RowStartsWith("class ");
-            return _rows[classIndexRow].Substring(6);
-        }
     }
 }
