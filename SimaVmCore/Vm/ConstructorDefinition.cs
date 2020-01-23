@@ -5,5 +5,7 @@ namespace SimaVmCore.Vm
         public ConstructorDefinition(ClassDefinition parentClass, string name) : base(parentClass, name)
         {
         }
+
+        public TypeDef[] Parameters;
     }
 }

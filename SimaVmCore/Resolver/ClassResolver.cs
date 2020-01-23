@@ -12,9 +12,8 @@ namespace SimaVmCore.Resolver
             _vmConfig = vmConfig;
         }
 
-        public string[] ResolveClass(string className)
+        public static string[] ResolveClass(string className)
         {
-            string packageName = ExtractPackage(className);
             var cacheFileName = Path.Join(ConstStrings.CachedDir, className +".txt"); 
             if (File.Exists(cacheFileName))
             {
@@ -28,7 +27,7 @@ namespace SimaVmCore.Resolver
             return outProcLines;
         }
 
-        private string ExtractPackage(string className)
+        private static string ExtractPackage(string className)
         {
             var idx = className.LastIndexOf('.');
             if (idx == -1)

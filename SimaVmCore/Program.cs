@@ -19,11 +19,15 @@ namespace SimaVmCore
                 Directory.CreateDirectory(ConstStrings.CachedDir);
             }
             
-            var resolver = new ClassResolver(config);
-            var outProcLines = resolver.ResolveClass(config.startClass);
-            var parser = new ClassDefinitionParser(outProcLines);
-            var def = parser.ParseDefinition();
-            Console.WriteLine("Output:\n "+string.Join("\n", outProcLines));
+            var classDefinitionCache = new ClassDefinitionCache();
+
+                var classDefinition = classDefinitionCache.GetClass(config.startClass);
+
+                var classes = TypeResolver.Instance.Classes;
+                foreach (var clazz in classes)
+                {
+                    classDefinitionCache.GetClass(clazz.Name);
+                }
         }
     }
 }

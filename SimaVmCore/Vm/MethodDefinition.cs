@@ -7,5 +7,7 @@ namespace SimaVmCore.Vm
         public MethodDefinition(ClassDefinition parentClass, string name) : base(parentClass, name)
         {
         }
+
+        public TypeDef[] Parameters;
     }
 }

@@ -9,7 +9,7 @@ namespace SimaVmCore
     {
         public static (int exitCode, string code) Execute(string fileName, string arguments)
         {
-            string output = "";
+            var output = "";
             var psi = new ProcessStartInfo();
             psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
@@ -24,8 +24,8 @@ namespace SimaVmCore
             using (var process = Process.Start(psi))
             {
                 process.StandardInput.Close();
-                StreamReader sOut = process.StandardOutput;
-                StreamReader sErr = process.StandardError;
+                var sOut = process.StandardOutput;
+                var sErr = process.StandardError;
                 output = sOut.ReadToEnd() + sErr.ReadToEnd();
                 sOut.Close();
                 sErr.Close();
@@ -42,7 +42,7 @@ namespace SimaVmCore
                 var json = File.ReadAllText(fileName);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new T();
             }

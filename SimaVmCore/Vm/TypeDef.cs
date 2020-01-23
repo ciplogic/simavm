@@ -4,5 +4,7 @@ namespace SimaVmCore.Vm
     {
         public string Name;
         public bool IsArray;
+        public TypeDef ElementType;
+        public bool IsPrimtive;
     }
 }

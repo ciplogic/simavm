@@ -22,8 +22,10 @@ namespace SimaVmCore.Vm
         }
         public ClassDefinition ParseDefinition()
         {
-            var cd = new ClassDefinition();
-            cd.Name = GetClassName();
+            var cd = new ClassDefinition
+            {
+                Name = GetClassName()
+            };
 
             ExtractMembers(cd);
 
@@ -32,8 +34,8 @@ namespace SimaVmCore.Vm
 
         private void ExtractMembers(ClassDefinition cd)
         {
-            var startMethodBlock = this.RowStartsWith("{");
-            var endMethodBlock = this.RowStartsWith("}");
+            var startMethodBlock = RowStartsWith("{");
+            var endMethodBlock = RowStartsWith("}");
             ExtractFields(cd, startMethodBlock, endMethodBlock);
         }
 
@@ -69,16 +71,81 @@ namespace SimaVmCore.Vm
                 }
             }
 
+            BuildClassFields(classDefinition, rowsWithFields);
+            BuildClassMethods(classDefinition, rowsWithMethodsOrCtors);
+        }
+
+        private void BuildClassMethods(ClassDefinition classDefinition, List<string> rows)
+        {
+            foreach (var row in rows)
+            {
+                var declaration = ExtractModifiers(row);
+                var openParenIndex = declaration.remainder.IndexOf('(');
+                var beforeParen = declaration.remainder.Substring(0, openParenIndex);
+                var args = declaration.remainder.Substring(openParenIndex + 1);
+                args = args.Substring(0, args.Length - 2);
+                var isMethod = beforeParen.Contains(' ');
+                if (!isMethod)
+                {
+                    var ctor = BuildConstructor(classDefinition, declaration.modifiers, args);
+                    classDefinition.Members.Add(ctor);
+                    continue;
+                }
+
+                var mth = BuildMethod(classDefinition, declaration.modifiers, beforeParen, args);
+                classDefinition.Members.Add(mth);
+            }
+        }
+
+        TypeDef[] ResolvedArguments(string args)
+        {
+            var argsSplit = args.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var resultList = new List<TypeDef>();
+            foreach (var argType in argsSplit)
+            {
+                var argsResult = TypeResolver.Instance.Resolve(argType);
+                resultList.Add(argsResult);
+            }
+
+            return resultList.ToArray();
+        }
+
+        private MethodDefinition BuildMethod(ClassDefinition classDefinition, Modifier[] declarationModifiers, string beforeParen, string args)
+        {
+            var split = beforeParen.Split(' ');
+            var methodName = split[1];
+            var result = new MethodDefinition(classDefinition, methodName)
+            {
+                Modifiers = declarationModifiers,
+                ReturnType = TypeResolver.Instance.Resolve(split[0]),
+                Parameters = ResolvedArguments(args)
+            };
+            return result;
+        }
+
+        private ConstructorDefinition BuildConstructor(ClassDefinition classDefinition, Modifier[] declarationModifiers, string args)
+        {
+            var result = new ConstructorDefinition(classDefinition, classDefinition.Name)
+            {
+                Modifiers = declarationModifiers, Parameters = ResolvedArguments(args)
+            };
+            return result;
+        }
+
+        private static void BuildClassFields(ClassDefinition classDefinition, List<string> rowsWithFields)
+        {
             foreach (var rowWithField in rowsWithFields)
             {
                 var declaration = ExtractModifiers(rowWithField);
-                var lastSpaceIndex = declaration.remainder.LastIndexOf(' ');
-                var name = declaration.remainder.Substring(lastSpaceIndex + 1);
+                var split = declaration.remainder.Split(' ');
+                
+                var name = split[1];
                 name = name.Substring(0, name.Length - 1);
 
                 var field = new FieldDefinition(classDefinition, name)
                 {
-                    Modifiers = declaration.modifiers
+                    Modifiers = declaration.modifiers,
+                    Type = TypeResolver.Instance.Resolve(split[0])
                 };
                 classDefinition.Members.Add(field);
             }
@@ -110,7 +177,7 @@ namespace SimaVmCore.Vm
             };
             do
             {
-                bool found = false;
+                var found = false;
                 foreach (var m in modifiers)
                 {
                     var startText = m.Key + " ";
