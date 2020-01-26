@@ -6,5 +6,10 @@ namespace SimaVmCore.Vm
         public bool IsArray;
         public bool IsPrimtive;
         public string Name;
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

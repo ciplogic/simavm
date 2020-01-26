@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using SimaVmCore.Resolver;
 using SimaVmCore.Vm;
 
@@ -14,11 +15,15 @@ namespace SimaVmCore
             if (!Directory.Exists(ConstStrings.CachedDir)) Directory.CreateDirectory(ConstStrings.CachedDir);
 
             var classDefinitionCache = new ClassDefinitionCache();
+            classDefinitionCache.GetClass("java.lang.Object");
 
             var classDefinition = classDefinitionCache.GetClass(config.startClass);
 
-            var classes = TypeResolver.Instance.Classes;
-            foreach (var clazz in classes) classDefinitionCache.GetClass(clazz.Name);
+            var classes = TypeResolver.Instance.Classes.ToArray();
+            foreach (var clazz in classes)
+            {
+                classDefinitionCache.GetClass(clazz.Name);
+            }
         }
     }
 }

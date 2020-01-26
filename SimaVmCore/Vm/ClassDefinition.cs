@@ -15,19 +15,15 @@ namespace SimaVmCore.Vm
         }
     }
 
-    public class ModifiersDef
-    {
-        public bool IsStatic;
-        public List<Modifier> Modifiers = new List<Modifier>();
-    }
-
     public enum Modifier
     {
         Static,
         Public,
         Private,
         Protected,
-        Package
+        Package,
+        Final,
+        Native
     }
 
     public class ClassDefinition

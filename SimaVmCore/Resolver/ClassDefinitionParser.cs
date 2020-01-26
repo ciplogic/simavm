@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SimaVmCore.Vm
 {
@@ -22,10 +23,8 @@ namespace SimaVmCore.Vm
 
         public ClassDefinition ParseDefinition()
         {
-            var cd = new ClassDefinition
-            {
-                Name = GetClassName()
-            };
+            var cd = new ClassDefinition();
+            cd.Name = GetClassName();
 
             ExtractMembers(cd);
 
@@ -134,7 +133,12 @@ namespace SimaVmCore.Vm
             {
                 var declaration = ExtractModifiers(rowWithField);
                 var split = declaration.remainder.Split(' ');
+                if (split.Length == 1)
+                {
+                    //TODO: static constructor
+                    continue;
 
+                }
                 var name = split[1];
                 name = name.Substring(0, name.Length - 1);
 
@@ -147,10 +151,34 @@ namespace SimaVmCore.Vm
             }
         }
 
+        int RowWithClass()
+        {
+            for (var i = 0; i < _rows.Length; i++)
+            {
+                var row = _rows[i];
+                if (CountStartSpaces(row)!=0)
+                    continue;
+                if (row.StartsWith("class "))
+                    return i;
+                var words = row.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (words.Contains("class"))
+                    return i;
+
+            }
+
+            return -1;
+        }
         private string GetClassName()
         {
-            var classIndexRow = RowStartsWith("class ");
-            return _rows[classIndexRow].Substring(6);
+            var classIndexRow = RowWithClass();
+            var rowWithClass = _rows[classIndexRow];
+            var words = rowWithClass.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < words.Length; i++)
+            {
+                if (words[i] == "class")
+                    return words[i + 1];
+            }
+            throw new NotImplementedException("Class should be there");
         }
 
         public static (string remainder, bool found) StartsWithCut(string text, string startsWith)
@@ -170,6 +198,8 @@ namespace SimaVmCore.Vm
                 },
                 {"private", Modifier.Private},
                 {"static", Modifier.Static},
+                {"final", Modifier.Final},
+                {"native", Modifier.Native},
                 {"protected", Modifier.Protected}
             };
             do
